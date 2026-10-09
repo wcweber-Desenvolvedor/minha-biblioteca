@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Minha Biblioteca</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f4f6f8;color:#222;font-size:14px}
+.wrap{max-width:1450px;margin:auto;padding:20px}
+.hero{background:#1f2937;color:#fff;padding:22px;border-radius:15px;margin-bottom:16px}
+.hero h1{margin:0 0 5px;font-size:27px}
+.hero p{margin:0;opacity:.9}
+.cards{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:16px 0}
+.card{background:#fff;border-radius:12px;padding:15px;box-shadow:0 2px 9px rgba(0,0,0,.07)}
+.card small{color:#555}.num{font-size:25px;font-weight:bold;margin-top:5px}
+.panel,.tablebox,.tools{background:#fff;border-radius:12px;padding:15px;margin-top:14px;box-shadow:0 2px 9px rgba(0,0,0,.05)}
+.form{display:grid;grid-template-columns:2fr 1.4fr 1.2fr 1.2fr 1fr 1fr 1fr 1fr;gap:9px}
+.form .wide{grid-column:span 2}
+label{display:block;font-size:12px;font-weight:bold;color:#555;margin:0 0 4px}
+input,select,textarea,button{font-family:inherit;font-size:13px}
+input,select,textarea{width:100%;padding:9px;border:1px solid #cbd2d9;border-radius:7px;background:#fff}
+textarea{min-height:58px;resize:vertical}
+.actions{display:flex;gap:8px;margin-top:11px}
+button{border:0;border-radius:7px;padding:9px 13px;cursor:pointer;font-weight:bold}
+.primary{background:#2563eb;color:#fff}.secondary{background:#6b7280;color:#fff}
+.green{background:#15803d;color:#fff}.orange{background:#b45309;color:#fff}
+.red{background:#b91c1c;color:#fff}.edit{background:#dbeafe}.del{background:#fee2e2}
+.tools{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto auto;gap:9px;align-items:center}
+.tablebox{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:1200px}
+th,td{padding:8px;border-bottom:1px solid #e7e7e7;text-align:left;vertical-align:top}
+th{background:#eef1f4;font-size:12px;white-space:nowrap}
+td{font-size:12px}
+.sortbtn{background:none;color:#222;padding:0;font-weight:bold}
+.sortbtn:hover{text-decoration:underline}
+.pill{display:inline-block;padding:4px 8px;border-radius:15px;background:#e5e7eb;font-size:11px;white-space:nowrap}
+.notice{display:none;margin-top:10px;padding:10px;border-radius:7px;background:#fff3cd;border:1px solid #e2b94d;color:#684f08}
+.info{font-size:12px;color:#666;margin-top:8px}
+.backupbox{display:none;margin-top:10px;padding:10px;background:#f7f7f7;border-radius:8px}
+@media(max-width:1150px){
+ .cards{grid-template-columns:repeat(3,1fr)}
+ .form{grid-template-columns:repeat(2,1fr)}
+ .form .wide{grid-column:auto}
+ .tools{grid-template-columns:1fr 1fr}
+}
+@media(max-width:650px){
+ .wrap{padding:10px}.cards{grid-template-columns:1fr 1fr}
+ .form,.tools{grid-template-columns:1fr}
+}
+
+/* ===== DASHBOARD ===== */
+.dashboard{margin-top:16px}
+.dashboard-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.dashboard-head h2{margin:0;font-size:20px}
+.dashboard-head span{font-size:12px;color:#666}
+.dash-grid{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:12px}
+.dash-panel{background:#fff;border-radius:12px;padding:15px;box-shadow:0 2px 9px rgba(0,0,0,.05)}
+.dash-panel h3{margin:0 0 12px;font-size:14px}
+.bar-row{display:grid;grid-template-columns:minmax(90px,1fr) 3fr 42px;gap:8px;align-items:center;margin:9px 0}
+.bar-label{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{height:13px;background:#edf0f3;border-radius:20px;overflow:hidden}
+.bar-fill{height:100%;background:#2563eb;border-radius:20px;min-width:2px}
+.bar-value{text-align:right;font-size:12px;font-weight:bold}
+.status-list{display:grid;gap:10px}
+.status-line{display:grid;grid-template-columns:105px 1fr 35px;gap:8px;align-items:center;font-size:12px}
+.status-track{height:11px;background:#edf0f3;border-radius:20px;overflow:hidden}
+.status-fill{height:100%;border-radius:20px}
+.status-concluido{background:#15803d}.status-leitura{background:#b45309}
+ .reading-list{display:grid;gap:8px;max-height:420px;overflow-y:auto;padding-right:3px}
+.reading-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;border-bottom:1px solid #eee;padding:7px 0;font-size:12px}
+.reading-title{font-weight:600;overflow-wrap:anywhere}
+.reading-days{font-weight:bold;white-space:nowrap;color:#1d4ed8}
+.reading-dates{grid-column:1/-1;color:#666;font-size:11px}
+.reading-invalid{color:#a16207;font-weight:600}
+.empty-dash{font-size:12px;color:#777;padding:8px 0}
+@media(max-width:1000px){.dash-grid{grid-template-columns:1fr 1fr}.dash-panel:first-child{grid-column:span 2}}
+@media(max-width:650px){.dashboard-head{align-items:flex-start;flex-direction:column}.dash-grid{grid-template-columns:1fr}.dash-panel:first-child{grid-column:auto}}
+
+
+/* ===== RESPONSIVIDADE DESKTOP + SMARTPHONE ===== */
+@media(max-width:650px){
+  body{font-size:14px}
+  .wrap{padding:8px}
+  .hero{padding:16px 14px;border-radius:12px}
+  .hero h1{font-size:22px}
+  .hero p{font-size:12px;line-height:1.4}
+
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+  .card{padding:11px 10px;border-radius:10px}
+  .card small{font-size:10px}
+  .num{font-size:19px;margin-top:4px}
+
+  .panel,.tablebox,.tools,.dash-panel{padding:11px;border-radius:10px;margin-top:10px}
+  .form{grid-template-columns:1fr!important;gap:8px}
+  .form .wide{grid-column:auto!important}
+  input,select,textarea{padding:10px;font-size:14px;min-height:40px}
+  textarea{min-height:76px}
+  .actions{gap:7px;flex-wrap:wrap}
+  .actions button,.tools button{flex:1;min-height:42px}
+
+  .tools{grid-template-columns:1fr!important;gap:8px}
+  .tools input,.tools select,.tools button{width:100%}
+
+  .dashboard{margin-top:10px}
+  .dashboard-head{gap:5px;margin-bottom:8px}
+  .dashboard-head h2{font-size:17px}
+  .dashboard-head span{font-size:10px;line-height:1.3}
+  .dash-grid{grid-template-columns:1fr!important;gap:8px}
+  .dash-panel:first-child{grid-column:auto!important}
+  .dash-panel h3{font-size:13px;margin-bottom:9px}
+  .bar-row{grid-template-columns:minmax(75px,1.1fr) 2fr 28px;gap:5px;margin:7px 0}
+  .bar-label,.bar-value,.status-line,.author-line{font-size:10px}
+  .bar-track{height:10px}
+  .status-line{grid-template-columns:75px 1fr 25px;gap:5px}
+  .status-track{height:9px}
+  .author-list{gap:6px}
+  .author-line{padding-bottom:5px}
+
+  /* Tabela continua completa, mas torna-se uma área de rolagem horizontal
+     confortável em telas pequenas, preservando todas as colunas. */
+  .tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0}
+  table{min-width:1120px}
+  th,td{padding:7px;font-size:11px}
+  th{font-size:11px}
+
+  .info{font-size:10px;line-height:1.35;margin:7px 2px}
+  .notice{font-size:12px}
+}
+
+/* telas médias: melhor aproveitamento de tablets e notebooks pequenos */
+@media(min-width:651px) and (max-width:1000px){
+  .wrap{padding:14px}
+  .cards{grid-template-columns:repeat(3,1fr)}
+  .form{grid-template-columns:repeat(2,1fr)}
+  .tools{grid-template-columns:1fr 1fr}
+  .dash-grid{grid-template-columns:1fr 1fr}
+  .dash-panel:first-child{grid-column:span 2}
+}
+
+/* melhora a usabilidade em aparelhos touch */
+@media (pointer:coarse){
+  button{min-height:40px}
+  input,select,textarea{min-height:40px}
+  .sortbtn{min-height:auto}
+}
+
+
+.mobileHint{display:none;font-size:11px;color:#666;margin:8px 2px}
+@media(max-width:650px){.mobileHint{display:block}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>📚 Minha Biblioteca</h1>
+    <p>Controle de livros, categorias, leituras, compras e observações.</p>
+  </div>
+
+  <div class="cards">
+    <div class="card"><small>Total de livros</small><div class="num" id="total">0</div></div>
+    <div class="card"><small>Livros lidos</small><div class="num" id="lidos">0</div></div>
+    <div class="card"><small>Em leitura</small><div class="num" id="leitura">0</div></div>
+    <div class="card"><small>Autores</small><div class="num" id="autores">0</div></div>
+    <div class="card"><small>Investimento</small><div class="num" id="investimento">R$ 0,00</div></div>
+  </div>
+
+
+  <section class="dashboard">
+    <div class="dashboard-head">
+      <h2>📊 Dashboard</h2>
+      <span>Resumo automático da biblioteca e tempo de leitura</span>
+    </div>
+    <div class="dash-grid">
+      <div class="dash-panel">
+        <h3>Livros por categoria</h3>
+        <div id="dashCategorias"></div>
+      </div>
+      <div class="dash-panel">
+        <h3>Situação da leitura</h3>
+        <div id="dashStatus" class="status-list"></div>
+      </div>
+      <div class="dash-panel">
+        <h3>Tempo de leitura por obra (dias)</h3>
+        <div id="dashTempoLeitura" class="reading-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <form id="bookForm">
+      <input type="hidden" id="editIndex">
+      <div class="form">
+        <div class="wide"><label>Livro *</label><input id="livro" required placeholder="Título do livro"></div>
+        <div><label>Autor</label><input id="autor" placeholder="Autor"></div>
+        <div><label>Categoria</label><input id="categoria" placeholder="Categoria"></div>
+        <div><label>Subcategoria</label><input id="subcategoria" placeholder="Subcategoria"></div>
+        <div><label>Data da compra</label><input id="compra" type="date"></div>
+        <div><label>Valor da compra</label><input id="valor" type="number" min="0" step="0.01" placeholder="0,00"></div>
+        <div><label>Início da leitura</label><input id="inicio" type="date"></div>
+        <div><label>Término da leitura</label><input id="fim" type="date"></div>
+        <div class="wide"><label>Observações</label><textarea id="observacoes" placeholder="Anotações, edição, indicação, comentários..."></textarea></div>
+      </div>
+      <div id="notice" class="notice"></div>
+      <div class="actions">
+        <button class="primary" type="submit" id="saveBtn">Adicionar livro</button>
+        <button class="secondary" type="button" id="cancelBtn" style="display:none">Cancelar</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="tools">
+    <input id="busca" placeholder="Pesquisar por livro ou autor">
+    <select id="filtro"><option value="">Todas as situações</option><option>Não iniciado</option><option>Em leitura</option><option>Concluído</option></select>
+    <select id="filtroCat"><option value="">Todas as categorias</option></select>
+    <select id="filtroSub"><option value="">Todas as subcategorias</option></select>
+    <button class="green" type="button" id="backupBtn">⬇ Backup</button>
+    <button class="orange" type="button" id="restoreBtn">⬆ Restaurar</button>
+    <input id="fileInput" type="file" accept=".json,application/json" style="display:none">
+  </section>
+  <div class="info">Para levar seus dados do computador ao smartphone: no computador, toque em <b>Backup</b> e salve o arquivo JSON; envie esse arquivo ao smartphone. Abra esta aplicação no smartphone, toque em <b>Restaurar</b> e selecione o mesmo arquivo. A restauração substitui os dados locais do aparelho, portanto faça backup antes se já houver alterações nele. Os aparelhos não sincronizam automaticamente entre si.</div>
+
+  <div class="mobileHint">📱 No smartphone, deslize a tabela horizontalmente para visualizar todas as colunas.</div>
+
+  <section class="tablebox">
+    <table>
+      <thead>
+        <tr>
+          <th><button class="sortbtn" id="sortTitle" type="button">Livro <span id="sortIcon">A–Z ▲</span></button></th>
+          <th>Autor</th><th>Categoria</th><th>Subcategoria</th><th>Compra</th><th>Valor</th>
+          <th>Início</th><th>Término</th><th>Situação</th><th>Observações</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var STORAGE_KEY="minhaBibliotecaLivros_v5";
+var livros=[];
+var dadosIniciais=[{"livro":"A Álgebra da Felicidade","autor":"Scott Galloway","categoria":"Desenvolvimento Pessoal","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Felicidade e Propósito"},{"livro":"A Arte da Guerra","autor":"Steven Pressfield","categoria":"Estratégia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Estratégia e Liderança"},{"livro":"A Arte de Fazer Acontecer","autor":"David Allen","categoria":"Produtividade","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Gestão de Tarefas"},{"livro":"A Arte de Gastar Dinheiro","autor":"Morgan Housel","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Finanças Pessoais"},{"livro":"A Arte de Pensar","autor":"Ernest Dimnet","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Pensamento e Raciocínio"},{"livro":"A Arte de Ter Razão","autor":"Arthur Schopenhauer","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Lógica e Argumentação"},{"livro":"A Ciência pode Explicar Tudo?","autor":"Johm Lennox","categoria":"Ciência","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Filosofia da Ciência"},{"livro":"A Escada da Riqueza","autor":"Nick Maggiulli","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Finanças Pessoais"},{"livro":"A Estranha Ordem das Coisas","autor":"Antônio Damasio","categoria":"Neurociência","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Emoções e Consciência"},{"livro":"A Lógica do Cisne Negro","autor":"Nassim Nicholas Taleb","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Risco e Incerteza"},{"livro":"A Psicologia Financeira","autor":"Morgan Housel","categoria":"Finanças","compra":"2025-03-23","valor":"32.05","inicio":"2025-03-23","fim":"2025-04-17","subcategoria":"Comportamento Financeiro"},{"livro":"A Regra dos Cinco Segundos","autor":"Mel Robbins","categoria":"Desenvolvimento Pessoal","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Hábitos e Ação"},{"livro":"A Startup de $100,00","autor":"ChrisGuillebeau","categoria":"Empreendedorismo","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Negócios e Startups"},{"livro":"A Torre e a Praça","autor":"Niall Ferguson","categoria":"História","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Poder e Sociedade"},{"livro":"A Vaca Roxa","autor":"Seth Godin","categoria":"Marketing","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Estratégias de Marketing"},{"livro":"A Vida dos Doze Césares","autor":"Suetônio","categoria":"História","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Roma Antiga"},{"livro":"A Vida Intelectual: Seu Espírito Suas Condições","autor":"Antonin Sertillanges","categoria":"Desenvolvimento Intelectual","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Estudo e Vida Intelectual"},{"livro":"A Vontade de Ter e o Tédio","autor":"Arthur Schopenhauer","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Schopenhauer"},{"livro":"Adolescentes: Quem Ama Educa","autor":"Içamitiba","categoria":"Educação","subcategoria":"Educação de Adolescentes","compra":"2007-11-11","valor":"25.00","inicio":"","fim":"","observacoes":"Presente"},{"livro":"Aforismo para a Sabedoria de Vida","autor":"Arthur Schopenhauer","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Sabedoria de Vida"},{"livro":"Análise Técnica Baseada em Evidências","autor":"David Aronson","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Análise Técnica"},{"livro":"Antifrágil","autor":"Nassim Nicholas Taleb","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Risco e Incerteza"},{"livro":"Arriscando a Própria Pele","autor":"Nassim Nicholas Taleb","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Risco e Responsabilidade"},{"livro":"As Armas da Persuasão","autor":"Robert B. Cialdini","categoria":"Psicologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Influência e Persuasão"},{"livro":"As Idéias Têm Consequências","autor":"Richard M. Weaver","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Filosofia Política"},{"livro":"As Leis Fundamentais da Estupidez Humana","autor":"Carlo M. Cipolla","categoria":"Sociologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Comportamento Social"},{"livro":"As Seis Lições","autor":"Ludwig von Mises","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Escola Austríaca"},{"livro":"Asas da Loucura","autor":"Paul Hoffman","categoria":"Biografia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Biografias"},{"livro":"Brevidade Inteligente - O Poder de dizer muito com poucas palavras","autor":"Jim VandeHei, Mike Allen, Roy Schwartz e Bruno Fiuza","categoria":"Comunicação","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Comunicação Escrita"},{"livro":"Building a Second Brain","autor":"Thiago Forte","categoria":"Produtividade","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Organização do Conhecimento"},{"livro":"Café com Satoshi","autor":"Paradigma","categoria":"Bitcoin","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Bitcoin e Criptoeconomia"},{"livro":"Casais Inteligentes Enriquecem Juntos","autor":"Gustavo Cerbasi","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Finanças para Casais"},{"livro":"Clássicos da Literatura Universal","autor":"Dostoiévski","categoria":"Literatura","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Clássicos"},{"livro":"Coisa de Rico","autor":"Michel Alcoforado","categoria":"Sociologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Comportamento e Classe Social"},{"livro":"Como Convencer Alguém em 90 Segundos","autor":"Nicholas Boothman","categoria":"Comunicação","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Comunicação Interpessoal"},{"livro":"Como Fazer Amigos e Influenciar Pessoas","autor":"Dale Carnegie","categoria":"Comunicação","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Relacionamentos e Influência"},{"livro":"Deixe de Ser Pobre","autor":"Eduardo Feldberg","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Mentalidade Financeira"},{"livro":"Desafio aos Deuses","autor":"Peter Bernstein","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"História do Risco"},{"livro":"Desestatização do Dinheiro","autor":"Friedrich Hayek","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Moeda e Política Monetária"},{"livro":"Economia da Abundância","autor":"Jeremy Rifkin","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Economia e Sociedade"},{"livro":"Em Busca de Sentido","autor":"Viktor E. Frankl","categoria":"Psicologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Sentido e Existência"},{"livro":"Em Nome do Povo","autor":"Bruno Perini","categoria":"Política","compra":"2025-04-11","valor":"43.10","inicio":"2025-09-25","fim":"2025-10-01","subcategoria":"Política e Poder"},{"livro":"Epistemologia da Complexidade","autor":"Maria Cândida Moraes","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Epistemologia e Complexidade"},{"livro":"Essencialismo","autor":"Greg McKeown","categoria":"Produtividade","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Foco e Prioridades"},{"livro":"Eu Vou te Ensinar a Ser Rico","autor":"Ramit Sethi","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Finanças Pessoais"},{"livro":"Faça Fortuna com Ações - Antes que Seja Tarde","autor":"Décio Bazin","categoria":"Investimentos","compra":"2025-10-03","valor":"60.75","inicio":"2025-02-09","fim":"2026-06-08","subcategoria":"Ações e Dividendos"},{"livro":"Falando com Estranhos","autor":"Malcolm Gladwell","categoria":"Psicologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Comportamento Social"},{"livro":"Força de Vontade Não Funciona","autor":"Benjamin Hardy","categoria":"Psicologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Comportamento e Hábitos"},{"livro":"Geração de Valor","autor":"Flávio Augusto","categoria":"Empreendedorismo","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Empreendedorismo"},{"livro":"Hábitos Atômicos","autor":"James Clear","categoria":"Desenvolvimento Pessoal","compra":"2025-10-03","valor":"112.93","inicio":"2025-11-04","fim":"2025-12-07","subcategoria":"Hábitos e Mudança"},{"livro":"Hamlet","autor":"William Shakespeare","categoria":"Literatura","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Teatro e Tragédia"},{"livro":"Império Romano","autor":"Isaac Asimov","categoria":"História","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Roma Antiga"},{"livro":"Investimentos","autor":"Mauro Halfeld","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Fundamentos de Investimentos"},{"livro":"Investimentos Inteligentes","autor":"Mauro Halfeld","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Estratégia de Investimentos"},{"livro":"Investindo em Small Caps","autor":"Anderson Lueders","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Ações e Small Caps"},{"livro":"Ismael","autor":"Daniel Quinn","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Ecologia e Civilização"},{"livro":"Isto é Água","autor":"David Foster Wallace","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Reflexões sobre a Vida"},{"livro":"Júlio César","autor":"William Shakespeare","categoria":"Literatura","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Teatro e Tragédia"},{"livro":"Lei dos Retornos Acelerados","autor":"Autor não especificado","categoria":"Tecnologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Futuro e Inovação"},{"livro":"Mais Esperto que o Diabo","autor":"Napoleon Hill","categoria":"Desenvolvimento Pessoal","compra":"2025-10-03","valor":"31.10","inicio":"2025-12-07","fim":"2026-01-17","subcategoria":"Mentalidade e Superação"},{"livro":"Manual Prático de PNL","autor":"Joseph O’Connor","categoria":"Psicologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Programação Neurolinguística"},{"livro":"Medo Líquido","autor":"Zygmunt Bauman","categoria":"Sociologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Sociedade e Modernidade"},{"livro":"Micro Hábitos","autor":"BJ Fogg","categoria":"Desenvolvimento Pessoal","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Hábitos e Mudança"},{"livro":"Mindset Milionário","autor":"José Roberto Marques","categoria":"Desenvolvimento Pessoal","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Mentalidade e Sucesso"},{"livro":"Morra Sem Nada","autor":"Bill Perkins","categoria":"Finanças","compra":"2026-02-16","valor":"34.26","inicio":"2026-10-05","fim":"","subcategoria":"Planejamento Patrimonial e Vida"},{"livro":"Não Desperdice Sua Vida","autor":"Anselm Grün","categoria":"Espiritualidade","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Vida e Propósito"},{"livro":"Nero e Seus Herdeiros","autor":"Allan Massie","categoria":"História","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Roma Antiga"},{"livro":"Nudge Como Tomar Melhores Decisões","autor":"Richard H. Thaler","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Economia Comportamental"},{"livro":"O Almanaque de Naval Ravikant","autor":"Eric Jorgenson","categoria":"Desenvolvimento Pessoal","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Filosofia de Vida e Riqueza"},{"livro":"O Andar do Bêbado","autor":"Leonard Mlodinow","categoria":"Probabilidade","compra":"2026-02-16","valor":"38.68","inicio":"2026-06-09","fim":"2026-10-05","subcategoria":"Acaso e Incerteza"},{"livro":"O Bitcoin e os Pobres","autor":"Autor não especificado","categoria":"Bitcoin","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Bitcoin e Inclusão Financeira"},{"livro":"O Caminho da Servidão","autor":"Friedrich Hayek","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Liberalismo e Política"},{"livro":"O Conhecimento Está Disperso pela Sociedade","autor":"Friedrich Hayek","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Escola Austríaca"},{"livro":"O Crime Castigo","autor":"Dostoiévski","categoria":"Literatura","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Romance Clássico"},{"livro":"O Curioso Caso do Dr. Jekyll e Sr. Hyde","autor":"Robert Louis Stevenson","categoria":"Literatura","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Romance e Horror"},{"livro":"O Erro de Descartes","autor":"Antônio Damasio","categoria":"Neurociência","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Emoções e Cognição"},{"livro":"O Filho Rico","autor":"Felipe Miranda","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Investimentos e Mercado"},{"livro":"O Fim dos Empregos","autor":"Jeremy Rifkin","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Trabalho e Tecnologia"},{"livro":"O Fim Está Sempre Próximo","autor":"Dan Carlin","categoria":"História","compra":"","valor":"","inicio":"","fim":"","subcategoria":"História e Colapso"},{"livro":"O Homem Mais Rico da Babilônia","autor":"George S. Clason","categoria":"Finanças","compra":"2025-02-20","valor":"22.42","inicio":"2025-02-23","fim":"2025-03-02","subcategoria":"Princípios de Riqueza"},{"livro":"O Homem que Comprou o Tempo","autor":"Thiago Nigro","categoria":"Finanças","compra":"2025-10-03","valor":"35.70","inicio":"2026-01-18","fim":"2026-02-09","subcategoria":"Finanças Pessoais"},{"livro":"O Investidor de Bom Senso","autor":"Johm C. Bogle","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Indexação e Longo Prazo"},{"livro":"O Investidor Inteligente","autor":"Benjamin Graham","categoria":"Investimentos","compra":"2025-04-11","valor":"54.55","inicio":"2025-04-17","fim":"2025-09-25","subcategoria":"Value Investing"},{"livro":"O Jeito Warren Buffetir de Investir","autor":"Robert G. Hagstrom","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Value Investing"},{"livro":"O Mais Importante para o Investidor","autor":"Howard Marks","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Gestão de Risco"},{"livro":"O Melhor do Mundo","autor":"Seth Godin","categoria":"Marketing","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Posicionamento e Marca"},{"livro":"O Mesmo de Sempre","autor":"Morgan Housel","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Comportamento Financeiro"},{"livro":"O Milionário Mora ao Lado","autor":"Thomas J. Stanley e William D. Danko","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Patrimônio e Riqueza"},{"livro":"O Mistério da Consciência","autor":"Antônio Damasio","categoria":"Neurociência","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Consciência"},{"livro":"O Mito do Empreendedor","autor":"Michael E. Gerber","categoria":"Empreendedorismo","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Gestão de Pequenos Negócios"},{"livro":"O Mundo de Sofia","autor":"Jostain Gaarder","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Introdução à Filosofia"},{"livro":"O Padrão Fiduciário","autor":"Saifedean Ammous","categoria":"Bitcoin","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Bitcoin e Sistema Monetário"},{"livro":"O Poder do Hábito","autor":"Charles do Duhigg","categoria":"Desenvolvimento Pessoal","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Hábitos e Mudança"},{"livro":"O Poder do Subconsciente","autor":"Joseph Murphy","categoria":"Psicologia","subcategoria":"Mente e Comportamento","compra":"","valor":"29.99","inicio":"2025-10-01","fim":"2025-02-23","observacoes":"Presente Lucas"},{"livro":"O que o governo fez com o nosso dinheiro?","autor":"Murray N. Rothbard","categoria":"Economia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Moeda e Estado"},{"livro":"O que os Ricos Fazem e Não Contam","autor":"Brian Sher","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Finanças Pessoais"},{"livro":"O Sentido da Vida","autor":"Contardo Calligaris","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Sentido e Existência"},{"livro":"Os Axiomas de Zurique","autor":"Max Gunther","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Psicologia do Investidor"},{"livro":"Os Códigos do Milhão","autor":"Pablo Marçal","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Finanças Pessoais"},{"livro":"Os Egípcios","autor":"Isaac Asimov","categoria":"História","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Egito Antigo"},{"livro":"Os Próprios Deuses","autor":"Isaac Asimov","categoria":"Literatura","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Ficção Científica"},{"livro":"Os Segredos da Mente Milionária","autor":"T. Harv Eker","categoria":"Finanças","compra":"2025-02-20","valor":"36.90","inicio":"2025-03-02","fim":"2025-03-31","subcategoria":"Mentalidade Financeira"},{"livro":"Pai Rico, Pai Pobre","autor":"Robert Kiyosaki","categoria":"Finanças","subcategoria":"Educação Financeira","compra":"","valor":"36.00","inicio":"","fim":"","observacoes":"Presente Lucas e Davi"},{"livro":"Ponto de Inflexão","autor":"Flávio Augusto da Silva","categoria":"Empreendedorismo","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Negócios e Carreira"},{"livro":"Princípios do Rei Dalio","autor":"Ray Dalio","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Princípios de Investimento"},{"livro":"Princípios para a Ordem Mundial","autor":"Ray Dalio","categoria":"Geopolítica","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Ordem Mundial"},{"livro":"Prisioneiros da Geografia","autor":"Tim Marshall","categoria":"Geopolítica","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Geografia e Poder"},{"livro":"Quem Pensa Enriquece","autor":"Napoleon Hill","categoria":"Desenvolvimento Pessoal","subcategoria":"Mentalidade e Sucesso","compra":"","valor":"27.00","inicio":"","fim":"","observacoes":"Presente Lucas"},{"livro":"Rápido e Devagar duas Formas de Pensar","autor":"Daniel Kahneman","categoria":"Psicologia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Tomada de Decisão"},{"livro":"Reflexões que Vão Mudar Sua Maneira de Pensar","autor":"Brianna Wiest","categoria":"Desenvolvimento Pessoal","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Reflexões e Autoconhecimento"},{"livro":"Regras para a Vida","autor":"Jordan B. Peterson","categoria":"Desenvolvimento Pessoal","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Princípios de Vida"},{"livro":"Reminiscências de um Operador da Bolsa","autor":"Edwin Lefevre","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"História e Psicologia do Mercado"},{"livro":"Respire","autor":"Rickson Gracie","categoria":"Desenvolvimento Pessoal","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Autocontrole e Performance"},{"livro":"Ricos Sábios e Felizes","autor":"William Green","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Investidores e Longo Prazo"},{"livro":"Sapiens","autor":"Yuval Noah Harari","categoria":"História","compra":"","valor":"","inicio":"","fim":"","subcategoria":"História da Humanidade"},{"livro":"Seja Amigo do Seu Dinheiro","autor":"Fábio Shius","categoria":"Finanças","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Educação Financeira"},{"livro":"Sexologia Feminina","autor":"Helen O’Connell","categoria":"Saúde","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Sexologia"},{"livro":"Sobre a Brevidade da Vida","autor":"Sênica","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Estoicismo"},{"livro":"Sociedade do Cansaço","autor":"Byung-Chul Han","categoria":"Filosofia","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Sociedade e Contemporaneidade"},{"livro":"Torne-se um Profissional","autor":"Steven Pressfield","categoria":"Empreendedorismo","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Carreira e Profissionalismo"},{"livro":"Trabalhe 4 Horas por Semana","autor":"Timothy Ferriss","categoria":"Produtividade","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Trabalho e Estilo de Vida"},{"livro":"Ultra Aprendizado","autor":"Scott H. Young","categoria":"Desenvolvimento Intelectual","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Aprendizagem"},{"livro":"Valuation","autor":"Michael Wickert","categoria":"Investimentos","compra":"","valor":"","inicio":"","fim":"","subcategoria":"Avaliação de Empresas"}];
+var ordemAsc=true;
+var duplicatePending=false;
+
+function $(id){return document.getElementById(id);}
+
+function carregar(){
+  try{
+    var salvo=localStorage.getItem(STORAGE_KEY);
+    if(salvo){
+      livros=JSON.parse(salvo);
+      if(!Array.isArray(livros))livros=[];
+    }else{
+      livros=dadosIniciais.map(function(x){var y={};for(var k in x)y[k]=x[k];return y;});
+      persistir();
+    }
+  }catch(e){
+    livros=dadosIniciais.map(function(x){var y={};for(var k in x)y[k]=x[k];return y;});
+  }
+}
+
+function persistir(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(livros));}
+  catch(e){alert("Não foi possível salvar os dados neste navegador. Faça um backup e verifique as permissões de armazenamento.");}
+}
+
+function norm(s){
+  return String(s==null?"":s)
+    .normalize ? String(s==null?"":s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase()
+    : String(s==null?"":s).trim().toLowerCase();
+}
+
+function status(x){return x.fim?"Concluído":(x.inicio?"Em leitura":"Não iniciado");}
+function esc(s){
+  return String(s==null?"":s).replace(/[&<>'"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c];
+  });
+}
+function br(d){
+  if(!d)return "—";
+  var p=String(d).split("-");
+  return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:d;
+}
+function money(v){
+  if(v===""||v==null||isNaN(Number(v)))return "—";
+  return Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+function saveAndRender(){persistir();render();}
+
+function clearForm(){
+  $("bookForm").reset();
+  $("editIndex").value="";
+  $("saveBtn").textContent="Adicionar livro";
+  $("cancelBtn").style.display="none";
+  $("notice").style.display="none";
+  duplicatePending=false;
+}
+
+$("bookForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  var title=$("livro").value.trim();
+  if(!title){alert("Informe o nome do livro.");return;}
+  var edit=$("editIndex").value;
+  var editNum=edit===""?-1:Number(edit);
+  var duplicate=livros.findIndex(function(x,i){return i!==editNum && norm(x.livro)===norm(title);});
+
+  /* A verificação de títulos repetidos aplica-se apenas a novos cadastros.
+     Ao editar uma obra existente, alterações de datas e demais campos devem ser salvas diretamente. */
+  if(editNum<0 && duplicate>=0 && !duplicatePending){
+    duplicatePending=true;
+    $("notice").style.display="block";
+    $("notice").innerHTML="⚠️ <b>Atenção:</b> este título já está cadastrado. Se for outro exemplar, clique novamente em <b>Adicionar livro</b> para confirmar.";
+    return;
+  }
+
+  var inicioNovo=$("inicio").value;
+  var fimNovo=$("fim").value;
+  if(inicioNovo && fimNovo && fimNovo<inicioNovo){
+    alert("A data de término não pode ser anterior à data de início. Confira as datas e tente novamente.");
+    return;
+  }
+
+  var b={
+    livro:title,
+    autor:$("autor").value.trim(),
+    categoria:$("categoria").value.trim(),
+    subcategoria:$("subcategoria").value.trim(),
+    compra:$("compra").value,
+    valor:$("valor").value,
+    inicio:inicioNovo,
+    fim:fimNovo,
+    observacoes:$("observacoes").value.trim()
+  };
+
+  if(editNum<0){
+    livros.push(b);
+  }else{
+    /* Atualização explícita do objeto existente para garantir a persistência das datas editadas. */
+    if(!livros[editNum]){alert("Não foi possível localizar a obra para atualizar. Atualize a lista e tente novamente.");return;}
+    livros[editNum]=Object.assign({},livros[editNum],b);
+  }
+  saveAndRender();
+  clearForm();
+});
+
+$("cancelBtn").addEventListener("click",clearForm);
+
+window.editarLivro=function(i){
+  var x=livros[i];if(!x)return;
+  duplicatePending=false;
+  $("notice").style.display="none";
+  $("editIndex").value=String(i);
+  ["livro","autor","categoria","subcategoria","compra","valor","inicio","fim","observacoes"].forEach(function(k){
+    $(k).value=x[k]||"";
+  });
+  $("saveBtn").textContent="Atualizar livro";
+  $("cancelBtn").style.display="inline-block";
+  window.scrollTo({top:0,behavior:"smooth"});
+};
+
+window.excluirLivro=function(i){
+  if(confirm("Excluir este livro?")){
+    livros.splice(i,1);
+    saveAndRender();
+  }
+};
+
+function updateCards(){
+  $("total").textContent=livros.length;
+  $("lidos").textContent=livros.filter(function(x){return !!x.fim;}).length;
+  $("leitura").textContent=livros.filter(function(x){return !!x.inicio&&!x.fim;}).length;
+  $("autores").textContent=new Set(livros.map(function(x){return norm(x.autor);}).filter(Boolean)).size;
+  var total=livros.reduce(function(s,x){return s+Number(x.valor||0);},0);
+  $("investimento").textContent=total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+
+function preencherFiltros(){
+  var catAtual=$("filtroCat").value,subAtual=$("filtroSub").value;
+  var cats=[...new Set(livros.map(function(x){return x.categoria;}).filter(Boolean))].sort(function(a,b){return norm(a).localeCompare(norm(b),"pt-BR");});
+  var subs=[...new Set(livros.map(function(x){return x.subcategoria;}).filter(Boolean))].sort(function(a,b){return norm(a).localeCompare(norm(b),"pt-BR");});
+
+  $("filtroCat").innerHTML='<option value="">Todas as categorias</option>'+cats.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+"</option>";}).join("");
+  $("filtroSub").innerHTML='<option value="">Todas as subcategorias</option>'+subs.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+"</option>";}).join("");
+  if(cats.indexOf(catAtual)>=0)$("filtroCat").value=catAtual;
+  if(subs.indexOf(subAtual)>=0)$("filtroSub").value=subAtual;
+}
+
+function render(){
+  var q=norm($("busca").value);
+  var f=$("filtro").value,cat=$("filtroCat").value,sub=$("filtroSub").value;
+
+  var arr=livros.map(function(x,i){var y={};for(var k in x)y[k]=x[k];y.i=i;return y;})
+    .filter(function(x){
+      return (!q||norm(x.livro).indexOf(q)>=0||norm(x.autor).indexOf(q)>=0)
+        &&(!f||status(x)===f)&&(!cat||x.categoria===cat)&&(!sub||x.subcategoria===sub);
+    });
+
+  /* Ordenação real pelo título, independente de acentos e maiúsculas/minúsculas */
+  arr.sort(function(a,b){
+    var A=norm(a.livro),B=norm(b.livro);
+    var c=A.localeCompare(B,"pt-BR",{sensitivity:"base"});
+    return ordemAsc?c:-c;
+  });
+
+  $("sortIcon").textContent=ordemAsc?"A–Z ▲":"Z–A ▼";
+
+  $("tbody").innerHTML=arr.map(function(x){
+    return "<tr>"+
+      "<td><b>"+esc(x.livro)+"</b></td>"+
+      "<td>"+esc(x.autor)+"</td><td>"+esc(x.categoria)+"</td><td>"+esc(x.subcategoria)+"</td>"+
+      "<td>"+br(x.compra)+"</td><td>"+money(x.valor)+"</td>"+
+      "<td>"+br(x.inicio)+"</td><td>"+br(x.fim)+"</td>"+
+      "<td><span class='pill'>"+status(x)+"</span></td>"+
+      "<td>"+esc(x.observacoes)+"</td>"+
+      "<td><button class='edit' type='button' onclick='editarLivro("+x.i+")'>Editar</button> "+
+      "<button class='del' type='button' onclick='excluirLivro("+x.i+")'>Excluir</button></td>"+
+      "</tr>";
+  }).join("")||"<tr><td colspan='11'>Nenhum livro cadastrado.</td></tr>";
+
+  updateCards();
+  preencherFiltros();
+  updateDashboard();
+}
+
+
+function updateDashboard(){
+  var catMap={};
+  livros.forEach(function(x){
+    var c=(x.categoria||"Sem categoria").trim()||"Sem categoria";
+    catMap[c]=(catMap[c]||0)+1;
+  });
+  var cats=Object.keys(catMap).sort(function(a,b){
+    return catMap[b]-catMap[a] || norm(a).localeCompare(norm(b),"pt-BR");
+  });
+  var maxCat=cats.length?catMap[cats[0]]:0;
+  $("dashCategorias").innerHTML=cats.length ? cats.map(function(c){
+    var pct=maxCat?Math.round(catMap[c]/maxCat*100):0;
+    return "<div class='bar-row'>"+
+      "<div class='bar-label' title='"+esc(c)+"'>"+esc(c)+"</div>"+
+      "<div class='bar-track'><div class='bar-fill' style='width:"+pct+"%'></div></div>"+
+      "<div class='bar-value'>"+catMap[c]+"</div>"+
+      "</div>";
+  }).join("") : "<div class='empty-dash'>Nenhum livro cadastrado.</div>";
+
+  var total=livros.length;
+  var concluido=livros.filter(function(x){return !!x.fim;}).length;
+  var leitura=livros.filter(function(x){return !!x.inicio&&!x.fim;}).length;
+  var statuses=[
+    ["Concluído",concluido,"status-concluido"],
+    ["Em leitura",leitura,"status-leitura"]
+  ];
+  $("dashStatus").innerHTML=statuses.map(function(s){
+    var pct=total?Math.round(s[1]/total*100):0;
+    return "<div class='status-line'>"+
+      "<div>"+s[0]+"</div>"+
+      "<div class='status-track'><div class='status-fill "+s[2]+"' style='width:"+pct+"%'></div></div>"+
+      "<div>"+s[1]+"</div>"+
+      "</div>";
+  }).join("");
+
+  /* Tempo decorrido em dias corridos, contando o primeiro e o último dia.
+     Obras sem datas válidas continuam listadas, para facilitar a correção do cadastro. */
+  var concluidos=livros.filter(function(x){return !!x.fim;}).slice().sort(function(a,b){
+    return String(b.fim||"").localeCompare(String(a.fim||"")) || norm(a.livro).localeCompare(norm(b.livro),"pt-BR");
+  });
+  $("dashTempoLeitura").innerHTML=concluidos.length ? concluidos.map(function(x){
+    var valido=false, dias=null;
+    if(x.inicio && x.fim){
+      var ini=new Date(x.inicio+"T00:00:00Z").getTime();
+      var fim=new Date(x.fim+"T00:00:00Z").getTime();
+      if(Number.isFinite(ini) && Number.isFinite(fim) && fim>=ini){dias=Math.floor((fim-ini)/86400000)+1;valido=true;}
+    }
+    var periodo=(x.inicio?br(x.inicio):"sem início")+" a "+br(x.fim);
+    return "<div class='reading-line'>"+
+      "<div class='reading-title' title='"+esc(x.livro)+"'>"+esc(x.livro)+"</div>"+
+      (valido ? "<div class='reading-days'>"+dias+" "+(dias===1?"dia":"dias")+"</div>" : "<div class='reading-days reading-invalid'>Revisar datas</div>")+ 
+      "<div class='reading-dates'>"+esc(periodo)+(valido?"":" · informe datas válidas de início e término")+"</div>"+
+      "</div>";
+  }).join("") : "<div class='empty-dash'>Nenhuma obra concluída com data de término cadastrada.</div>";
+}
+
+/* Ordenação */
+$("sortTitle").addEventListener("click",function(){ordemAsc=!ordemAsc;render();});
+
+/* Pesquisa e filtros */
+["busca","filtro","filtroCat","filtroSub"].forEach(function(id){
+  $(id).addEventListener("input",render);
+  $(id).addEventListener("change",render);
+});
+
+/* Backup JSON */
+$("backupBtn").addEventListener("click",function(){
+  var pacote={
+    aplicativo:"Minha Biblioteca",
+    versao:"6.0",
+    dataBackup:new Date().toISOString(),
+    livros:livros
+  };
+  var blob=new Blob([JSON.stringify(pacote,null,2)],{type:"application/json;charset=utf-8"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");
+  a.href=url;
+  a.download="Minha_Biblioteca_Backup_"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+});
+
+/* Restauração */
+$("restoreBtn").addEventListener("click",function(){$("fileInput").click();});
+$("fileInput").addEventListener("change",function(){
+  var file=this.files&&this.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    try{
+      var obj=JSON.parse(reader.result);
+      var dados=Array.isArray(obj)?obj:obj.livros;
+      if(!Array.isArray(dados))throw new Error("Formato inválido");
+      if(!confirm("Restaurar este backup substituirá a biblioteca atual. Deseja continuar?"))return;
+      livros=dados;
+      saveAndRender();
+      alert("Backup restaurado com sucesso.");
+    }catch(e){alert("Não foi possível restaurar o backup. Selecione um arquivo JSON criado pelo Minha Biblioteca.");}
+    $("fileInput").value="";
+  };
+  reader.readAsText(file,"UTF-8");
+});
+
+/* Inicialização */
+carregar();
+render();
+})();
+</script>
+</body>
+</html>
